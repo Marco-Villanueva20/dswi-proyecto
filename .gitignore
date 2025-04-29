@@ -1,0 +1,67 @@
+# ============================
+# Archivos de sistema y del OS
+# ============================
+**.DS_Store
+**Thumbs.db
+**desktop.ini
+
+# ============================
+# Archivos generales de logs, backups y temporales
+# ============================
+**.log
+**.tmp
+**.bak
+**.swp
+**.swo
+**~
+
+# ============================
+# Configuraciones y archivos personales
+# ============================
+# Archivos de entorno y credenciales (se recomienda no incluir datos personales)
+**.env
+**.env.*
+**.secret
+**.credentials
+
+# ============================
+# Configuración de Visual Studio (IDE completo)
+# ============================
+**.vs/
+**.suo
+**.user
+**.userosscache
+**.sln.docstates
+**.VC.db
+**.VC.VC.opendb
+**_ReSharper*/
+**.resharper
+**.vspscc
+**.vssscc
+**.ncb
+
+# ============================
+# Archivos de compilación y construcción
+# ============================
+**target/
+**bin/
+**build/
+**out/
+
+# ============================
+# Configuración de Spring Tool Suite / Eclipse
+# ============================     
+.metadata/
+**/.metadata/# Carpeta del workspace en Eclipse/STS
+**.project            # Archivo de configuración del proyecto Eclipse
+**.classpath          # Archivo de configuración de clases de Eclipse
+**.settings/         # Carpetas de configuraciones locales del proyecto Eclipse/STS
+**.apt_generated/    # Archivos generados por el procesador de anotaciones
+**.loadpath
+**.recommenders/
+
+# ============================
+# Directorios de herramientas de construcción (Maven, Gradle)
+# ============================
+**.mvn/
+**.gradle/
