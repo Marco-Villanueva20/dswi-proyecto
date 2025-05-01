@@ -1,0 +1,18 @@
+@BibliotecaApi_HostAddress = https://localhost:7070
+
+GET {{BibliotecaApi_HostAddress}}/api/usuarios
+Accept: application/json
+
+###
+
+POST {{BibliotecaApi_HostAddress}}/api/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "Juan Pérez",
+  "correo": "juan@example.com",
+  "contrasena": "123456",
+  "ordenes": []
+}
+
+###
