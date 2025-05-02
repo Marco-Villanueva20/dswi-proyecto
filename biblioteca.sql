@@ -24,6 +24,7 @@ CREATE TABLE detalle_orden (
   id_libro INT NOT NULL,
   cantidad INT NOT NULL,
   precio_unitario REAL NOT NULL,
+  precio_total REAL NOT NULL,
   FOREIGN KEY (id_orden) REFERENCES orden(id),
   FOREIGN KEY (id_libro) REFERENCES libros(id)
 );
