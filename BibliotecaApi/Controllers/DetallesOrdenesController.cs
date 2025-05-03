@@ -12,47 +12,47 @@ namespace BibliotecaApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuariosController : ControllerBase
+    public class DetallesOrdenesController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
 
-        public UsuariosController(ApplicationDBContext context)
+        public DetallesOrdenesController(ApplicationDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/Usuarios
+        // GET: api/DetallesOrdenes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+        public async Task<ActionResult<IEnumerable<DetalleOrden>>> GetOrdenDetalles()
         {
-            return await _context.Usuarios.ToListAsync();
+            return await _context.OrdenDetalles.ToListAsync();
         }
 
-        // GET: api/Usuarios/5
+        // GET: api/DetallesOrdenes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Usuario>> GetUsuario(int id)
+        public async Task<ActionResult<DetalleOrden>> GetDetalleOrden(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var detalleOrden = await _context.OrdenDetalles.FindAsync(id);
 
-            if (usuario == null)
+            if (detalleOrden == null)
             {
                 return NotFound();
             }
 
-            return usuario;
+            return detalleOrden;
         }
 
-        // PUT: api/Usuarios/5
+        // PUT: api/DetallesOrdenes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
+        public async Task<IActionResult> PutDetalleOrden(int id, DetalleOrden detalleOrden)
         {
-            if (id != usuario.Id)
+            if (id != detalleOrden.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(usuario).State = EntityState.Modified;
+            _context.Entry(detalleOrden).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace BibliotecaApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UsuarioExists(id))
+                if (!DetalleOrdenExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace BibliotecaApi.Controllers
             return NoContent();
         }
 
-        // POST: api/Usuarios
+        // POST: api/DetallesOrdenes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
+        public async Task<ActionResult<DetalleOrden>> PostDetalleOrden(DetalleOrden detalleOrden)
         {
-            _context.Usuarios.Add(usuario);
+            _context.OrdenDetalles.Add(detalleOrden);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, usuario);
+            return CreatedAtAction("GetDetalleOrden", new { id = detalleOrden.Id }, detalleOrden);
         }
 
-        // DELETE: api/Usuarios/5
+        // DELETE: api/DetallesOrdenes/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUsuario(int id)
+        public async Task<IActionResult> DeleteDetalleOrden(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
+            var detalleOrden = await _context.OrdenDetalles.FindAsync(id);
+            if (detalleOrden == null)
             {
                 return NotFound();
             }
 
-            _context.Usuarios.Remove(usuario);
+            _context.OrdenDetalles.Remove(detalleOrden);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool UsuarioExists(int id)
+        private bool DetalleOrdenExists(int id)
         {
-            return _context.Usuarios.Any(e => e.Id == id);
+            return _context.OrdenDetalles.Any(e => e.Id == id);
         }
     }
 }

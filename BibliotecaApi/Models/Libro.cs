@@ -3,12 +3,13 @@
     public class Libro
     {
         public int Id { get; set; }
-        public string Titulo { get; set; }
-        public string Autor { get; set; }
-        public string Genero { get; set; }
-        public string ISBN { get; set; }
-        public string Descripcion { get; set; }
-        public int Stock { get; set; }
-        public decimal Precio { get; set; }
+        public string Titulo { get; set; } = string.Empty;
+        public string Autor { get; set; } = string.Empty;
+        public float Precio { get; set; }
+        public string? Imagen { get; set; }
+
+        // Relación con Usuario
+        public int IdUsuario { get; set; }
+        public Usuario? Usuario { get; set; }
     }
 }

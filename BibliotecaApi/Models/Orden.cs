@@ -3,12 +3,12 @@
     public class Orden
     {
         public int Id { get; set; }
-        public int UsuarioId { get; set; }
-        public Usuario Usuario { get; set; }
+        public string Descripcion { get; set; } = string.Empty; // ejemplo: "#ORD001"
+        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public int CantidadTotal { get; set; }
+        public float PrecioTotal { get; set; }
 
-        public DateTime Fecha { get; set; }
-        public List<OrdenItem> Items { get; set; }
-
-        public string Estado { get; set; } // "Pendiente", "Entregado", "Cancelado"
+        // Navegación: una orden puede tener muchos detalles
+        public List<DetalleOrden> Detalles { get; set; } = new();
     }
 }

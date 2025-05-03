@@ -12,47 +12,47 @@ namespace BibliotecaApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuariosController : ControllerBase
+    public class OrdenesController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
 
-        public UsuariosController(ApplicationDBContext context)
+        public OrdenesController(ApplicationDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/Usuarios
+        // GET: api/Ordenes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+        public async Task<ActionResult<IEnumerable<Orden>>> GetOrdenes()
         {
-            return await _context.Usuarios.ToListAsync();
+            return await _context.Ordenes.ToListAsync();
         }
 
-        // GET: api/Usuarios/5
+        // GET: api/Ordenes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Usuario>> GetUsuario(int id)
+        public async Task<ActionResult<Orden>> GetOrden(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var orden = await _context.Ordenes.FindAsync(id);
 
-            if (usuario == null)
+            if (orden == null)
             {
                 return NotFound();
             }
 
-            return usuario;
+            return orden;
         }
 
-        // PUT: api/Usuarios/5
+        // PUT: api/Ordenes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
+        public async Task<IActionResult> PutOrden(int id, Orden orden)
         {
-            if (id != usuario.Id)
+            if (id != orden.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(usuario).State = EntityState.Modified;
+            _context.Entry(orden).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +60,7 @@ namespace BibliotecaApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UsuarioExists(id))
+                if (!OrdenExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +73,36 @@ namespace BibliotecaApi.Controllers
             return NoContent();
         }
 
-        // POST: api/Usuarios
+        // POST: api/Ordenes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
+        public async Task<ActionResult<Orden>> PostOrden(Orden orden)
         {
-            _context.Usuarios.Add(usuario);
+            _context.Ordenes.Add(orden);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUsuario", new { id = usuario.Id }, usuario);
+            return CreatedAtAction("GetOrden", new { id = orden.Id }, orden);
         }
 
-        // DELETE: api/Usuarios/5
+        // DELETE: api/Ordenes/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUsuario(int id)
+        public async Task<IActionResult> DeleteOrden(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario == null)
+            var orden = await _context.Ordenes.FindAsync(id);
+            if (orden == null)
             {
                 return NotFound();
             }
 
-            _context.Usuarios.Remove(usuario);
+            _context.Ordenes.Remove(orden);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool UsuarioExists(int id)
+        private bool OrdenExists(int id)
         {
-            return _context.Usuarios.Any(e => e.Id == id);
+            return _context.Ordenes.Any(e => e.Id == id);
         }
     }
 }
