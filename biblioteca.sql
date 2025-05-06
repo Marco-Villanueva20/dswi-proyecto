@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS ordenes (
 -- Tabla de detalles de órdenes
 CREATE TABLE IF NOT EXISTS detalles_ordenes (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  id_orden INT NOT NULL,
-  id_libro INT NULL,
+  id_orden INT NULL,
+  id_libro INT NOT NULL,
   id_usuario INT NOT NULL,
   cantidad INT NOT NULL,
   precio_unitario REAL NOT NULL,
@@ -58,6 +58,12 @@ CREATE TABLE IF NOT EXISTS detalles_ordenes (
   FOREIGN KEY (id_libro) REFERENCES libros(id) ON DELETE CASCADE,
   FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 );
+SELECT * FROM Libros WHERE Id = 1;
+
+SELECT * FROM DETALLES_ORDENES;
+SELECT * FROM Detalles_Ordenes WHERE Id_Usuario = 1 AND Id_Orden IS NULL;
+
+select * from libros;
 INSERT INTO detalles_ordenes (
     id_orden,
     id_libro,
