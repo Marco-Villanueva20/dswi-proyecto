@@ -1,14 +1,18 @@
-﻿namespace BibliotecaApi.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
+namespace BibliotecaApi.Models
 {
     public class Orden
     {
         public int Id { get; set; }
         public string Descripcion { get; set; } = string.Empty; // ejemplo: "#ORD001"
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
-        public int CantidadTotal { get; set; }
-        public float PrecioTotal { get; set; }
+        [Column("fecha_creacion")] public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        [Column("cantidad_total")] public int CantidadTotal { get; set; }
+        [Column("precio_total")] public float PrecioTotal { get; set; }
 
         // Navegación: una orden puede tener muchos detalles
-        public List<DetalleOrden> Detalles { get; set; } = new();
+        [JsonIgnore]
+        public List<DetalleOrden> DetallesOrdenes { get; set; } = new();
     }
 }

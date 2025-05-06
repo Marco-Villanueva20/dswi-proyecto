@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using BibliotecaApi.Data;
+using BibliotecaApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BibliotecaApi.Data;
-using BibliotecaApi.Models;
 
 namespace BibliotecaApi.Controllers
 {
@@ -41,6 +36,52 @@ namespace BibliotecaApi.Controllers
 
             return usuario;
         }
+
+
+        // GET: api/usuarios/5/carrito
+        [HttpGet("{idUsuario}/carrito")]
+        public async Task<ActionResult<IEnumerable<DetalleOrden>>> GetCarritoUsuario(int idUsuario)
+        {
+            var carrito = await _context.DetallesOrdenes
+                .Where(det => det.IdUsuario == idUsuario && det.IdOrden == null)
+                .Include(det => det.Libro) // Incluye el libro
+                .Include(det => det.Usuario) // Incluye el usuario
+                .ToListAsync();
+
+            if (carrito == null || !carrito.Any())
+            {
+                return NotFound("El carrito está vacío.");
+            }
+
+            return carrito;
+        }
+
+
+        [HttpGet("login/{username},{password}")]
+        public async Task<ActionResult<Usuario>> GetUsuarioPorCredenciales(string username, string password)
+        {
+            // Busca el usuario que tenga ese username y password (compara en la BD)
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Username == username && u.Password == password);
+            // Si no se encuentra, devuelve 404
+            if (usuario == null)
+            {
+                return NotFound(new { success = false, message = "Usuario o contraseña incorrectos" });
+            }
+            return Ok(new
+            {
+                success = true, // <-- NECESARIO PARA QUE EL FRONTEND LO DETECTE
+                usuario = new
+                {
+                    usuario.Id,
+                    usuario.Nombres,
+                    usuario.Username,
+                    usuario.Rol // No se devuelve la contraseña por seguridad
+                }
+               
+            });
+        }
+
 
         // PUT: api/Usuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

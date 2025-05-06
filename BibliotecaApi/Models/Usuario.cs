@@ -1,4 +1,6 @@
-﻿namespace BibliotecaApi.Models
+﻿using System.Text.Json.Serialization;
+
+namespace BibliotecaApi.Models
 {
     public class Usuario
     {
@@ -9,6 +11,10 @@
         public string Rol { get; set; } = string.Empty; // Debe ser "ADMINISTRADOR" o "USUARIO"
 
         // Navegación: un usuario puede tener varios libros
-        public List<Libro> Libros { get; set; } = new();
+        [JsonIgnore]
+        public ICollection<Libro> Libros { get; } = new List<Libro>();
+
+        [JsonIgnore]
+        public ICollection<DetalleOrden> DetallesOrdenes { get; } = new List<DetalleOrden>();
     }
 }

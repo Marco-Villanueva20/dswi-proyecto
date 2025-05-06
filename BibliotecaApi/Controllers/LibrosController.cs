@@ -32,7 +32,7 @@ namespace BibliotecaApi.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Libro>> GetLibro(int id)
         {
-            var libro = await _context.Libros.FindAsync(id);
+            var libro = await _context.Libros.Include(lib => lib.Usuario).FirstOrDefaultAsync(lib => lib.Id == id);
 
             if (libro == null)
             {
