@@ -28,6 +28,42 @@ namespace BibliotecaApi.Controllers
             return await _context.DetallesOrdenes.ToListAsync();
         }
 
+        [HttpPost]
+        public async Task<ActionResult<DetalleOrden>> PostDetalleOrden(DetalleOrden detalleOrden)
+        {
+            try
+            {
+                // Buscar si ya existe un detalle en el carrito con ese libro y usuario (sin orden finalizada)
+                var existente = await _context.DetallesOrdenes
+                    .FirstOrDefaultAsync(d => d.IdUsuario == detalleOrden.IdUsuario &&
+                                              d.IdLibro == detalleOrden.IdLibro &&
+                                              d.IdOrden == null);
+
+                if (existente != null)
+                {
+                    // Ya existe -> actualizar cantidad y precios
+                    existente.Cantidad += detalleOrden.Cantidad;
+                    existente.PrecioTotal = existente.Cantidad * existente.PrecioUnitario;
+
+                    _context.DetallesOrdenes.Update(existente);
+                    await _context.SaveChangesAsync();
+
+                    return Ok(existente); // o return CreatedAtAction() si prefieres mantener el formato
+                }
+
+                // No existe -> agregar nuevo
+                _context.DetallesOrdenes.Add(detalleOrden);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetDetalleOrden", new { id = detalleOrden.Id }, detalleOrden);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR en PostDetalleOrden: " + ex.Message);
+                return StatusCode(500, "Error interno del servidor: " + ex.Message);
+            }
+        }
+
 
         // GET: api/DetallesOrdenes/CarritoUsuario/5
         [HttpGet("CarritoUsuario/{idUsuario}")]
@@ -36,7 +72,7 @@ namespace BibliotecaApi.Controllers
             var detalles = await _context.DetallesOrdenes
                 .Where(d => d.IdUsuario == idUsuario && d.IdOrden == null)
                 .Include(d => d.Libro) // Incluimos el objeto relacionado Libro
-                .ToListAsync();
+                .Include(d=> d.Usuario).ToListAsync();
 
             if (detalles.Count == 0)
             {
@@ -50,23 +86,43 @@ namespace BibliotecaApi.Controllers
                 d.Cantidad,
                 d.PrecioUnitario,
                 d.PrecioTotal,
+                d.IdUsuario,
                 Libro = new
                 {
                     d.Libro!.Id,
                     d.Libro.Titulo,
                     d.Libro.Imagen
                 }
+                
             });
 
             return Ok(resultado);
         }
 
+        // DELETE: api/DetallesOrdenes/LimpiarCarrito/5
+        [HttpDelete("LimpiarCarrito/{idUsuario}")]
+        public async Task<IActionResult> LimpiarCarrito(int idUsuario)
+        {
+            var detallesEnCarrito = await _context.DetallesOrdenes
+                .Where(d => d.IdUsuario == idUsuario && d.IdOrden == null)
+                .ToListAsync();
+
+            if (!detallesEnCarrito.Any())
+            {
+                return NotFound("El carrito ya está vacío.");
+            }
+
+            _context.DetallesOrdenes.RemoveRange(detallesEnCarrito);
+            await _context.SaveChangesAsync();
+
+            return Ok("Carrito limpiado correctamente.");
+        }
+
 
 
         // PUT: api/DetallesOrdenes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDetalleOrden(int id, DetalleOrden detalleOrden)
+        public async Task<IActionResult> PutDetalleOrden(int id, [FromBody] DetalleOrden detalleOrden)
         {
             if (id != detalleOrden.Id)
             {
@@ -94,25 +150,7 @@ namespace BibliotecaApi.Controllers
             return NoContent();
         }
 
-        // POST: api/DetallesOrdenes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<DetalleOrden>> PostDetalleOrden(DetalleOrden detalleOrden)
-        {
-            try
-            {
-                _context.DetallesOrdenes.Add(detalleOrden);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction("GetDetalleOrden", new { id = detalleOrden.Id }, detalleOrden);
-            }
-            catch (Exception ex)
-            {
-                // Esto imprime el error completo en consola
-                Console.WriteLine("ERROR en PostDetalleOrden: " + ex.Message);
-                return StatusCode(500, "Error interno del servidor: " + ex.Message);
-            }
-        }
-
+        
         [HttpGet("{id}")]
         public async Task<ActionResult<DetalleOrden>> GetDetalleOrden(int id)
         {
@@ -150,3 +188,26 @@ namespace BibliotecaApi.Controllers
         }
     }
 }
+
+
+/*
+ // POST: api/DetallesOrdenes
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<DetalleOrden>> PostDetalleOrden(DetalleOrden detalleOrden)
+        {
+            try
+            {
+                _context.DetallesOrdenes.Add(detalleOrden);
+                await _context.SaveChangesAsync();
+                return CreatedAtAction("GetDetalleOrden", new { id = detalleOrden.Id }, detalleOrden);
+            }
+            catch (Exception ex)
+            {
+                // Esto imprime el error completo en consola
+                Console.WriteLine("ERROR en PostDetalleOrden: " + ex.Message);
+                return StatusCode(500, "Error interno del servidor: " + ex.Message);
+            }
+        }
+
+ */

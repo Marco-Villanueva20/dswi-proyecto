@@ -22,10 +22,55 @@ namespace BibliotecaApi.Controllers
 
         // GET: api/Ordenes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Orden>>> GetOrdenes()
+        public async Task<ActionResult<IEnumerable<object>>> GetOrdenes()
         {
-            return await _context.Ordenes.ToListAsync();
+            var ordenes = await _context.Ordenes
+                .Include(o => o.DetallesOrdenes)
+                .ToListAsync();
+
+            var resultado = new List<object>();
+
+            foreach (var orden in ordenes)
+            {
+                var detallesConLibros = new List<object>();
+
+                foreach (var detalle in orden.DetallesOrdenes)
+                {
+                    // Busca el libro correspondiente
+                    var libro = await _context.Libros.FindAsync(detalle.IdLibro);
+
+                    detallesConLibros.Add(new
+                    {
+                        detalle.Id,
+                        detalle.IdOrden,
+                        detalle.IdLibro,
+                        detalle.IdUsuario,
+                        detalle.Cantidad,
+                        PrecioUnitario = detalle.PrecioUnitario,
+                        PrecioTotal = detalle.PrecioTotal,
+                        Libro = libro == null ? null : new
+                        {
+                            libro.Titulo,
+                            libro.Autor,
+                            libro.Imagen
+                        }
+                    });
+                }
+
+                resultado.Add(new
+                {
+                    orden.Id,
+                    orden.Descripcion,
+                    orden.FechaCreacion,
+                    orden.CantidadTotal,
+                    orden.PrecioTotal,
+                    DetallesOrdenes = detallesConLibros
+                });
+            }
+
+            return Ok(resultado);
         }
+
 
         // GET: api/Ordenes/5
         [HttpGet("{id}")]
@@ -98,6 +143,42 @@ namespace BibliotecaApi.Controllers
 
             return NoContent();
         }
+
+
+        [HttpPost("CrearConDetalles/{idUsuario}")]
+        public async Task<ActionResult<Orden>> CrearOrdenConDetalles(int idUsuario, Orden orden)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // 1. Crear orden
+                _context.Ordenes.Add(orden);
+                await _context.SaveChangesAsync();
+
+                // 2. Obtener detalles del carrito de ese usuario
+                var detallesCarrito = await _context.DetallesOrdenes
+                    .Where(d => d.IdUsuario == idUsuario && d.IdOrden == null)
+                    .ToListAsync();
+
+                // 3. Asignar el id de la orden a cada detalle
+                foreach (var detalle in detallesCarrito)
+                {
+                    detalle.IdOrden = orden.Id; // Asigna el ID recién creado
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return CreatedAtAction("GetOrden", new { id = orden.Id }, orden);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { mensaje = "Error al crear la orden y asignar detalles.", error = ex.Message });
+            }
+        }
+
 
         private bool OrdenExists(int id)
         {

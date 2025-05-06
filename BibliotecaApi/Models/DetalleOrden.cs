@@ -10,12 +10,15 @@ namespace BibliotecaApi.Models
         public int Id { get; set; }
 
         [Column("id_orden")] public int? IdOrden { get; set; }
+        [JsonIgnore]
         public Orden? Orden { get; set; }
 
         [Column("id_libro")] public int IdLibro { get; set; }
+        [JsonIgnore]
         public Libro? Libro { get; set; }
 
         [Column("id_usuario")] public int IdUsuario { get; set; }
+        [JsonIgnore]
         public Usuario? Usuario { get; set; }
 
         public int Cantidad { get; set; }

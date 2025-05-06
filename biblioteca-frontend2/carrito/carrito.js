@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let total = 0;
     let cantidadLibros = 0;
 
+
     fetch("https://localhost:7070/api/DetallesOrdenes/CarritoUsuario/1") // ID del usuario
     .then(response => {
         if (!response.ok) {
@@ -71,37 +72,55 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (nuevaCantidad < 1) return;
 
                     const idDetalle = card.dataset.idDetalle;
-                    const body = {
-                        id: parseInt(idDetalle),
-                        idOrden: null,
-                        idLibro: parseInt(card.dataset.idLibro),
-                        idUsuario: parseInt(card.dataset.idUsuario),
-                        cantidad: nuevaCantidad,
-                        precioUnitario: parseFloat(card.dataset.precioUnitario),
-                        precioTotal: parseFloat(card.dataset.precioUnitario) * nuevaCantidad
-                    };
+                    console.log("Actualizando ID:", idDetalle.idUsuario); // Esto debería mostrar solo un número
 
-                    fetch(`https://localhost:7070/api/DetallesOrdenes/${idDetalle}`, {
+                    const body = {
+                
+                            id: parseInt(card.dataset.idDetalle),
+                            idLibro: parseInt(card.dataset.idLibro),
+                            idUsuario: parseInt(card.dataset.idUsuario), // Asegúrate de que sea número
+                            cantidad: nuevaCantidad,
+                            precioUnitario: parseFloat(card.dataset.precioUnitario),
+                            precioTotal: parseFloat(card.dataset.precioUnitario) * nuevaCantidad
+                        
+                    };
+                    console.log("Actualizando ID:", body);
+                    
+
+                    fetch(`https://localhost:7070/api/DetallesOrdenes/${body.id}`, {
                         method: "PUT",
-                        headers: { "Content-Type": "application/json" },
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
                         body: JSON.stringify(body)
                     })
                     .then(res => {
-                        if (res.ok) location.reload();
-                        else alert("Error al actualizar cantidad");
+                        if (!res.ok) {
+                            return res.json().then(error => {
+                                console.error("Error del backend:", error);
+                                alert("Error al actualizar cantidad: " + JSON.stringify(error));
+                            });
+                        }
+                    
+                        // Actualizar cantidad en el input
+                        inputCantidad.value = nuevaCantidad;
+                    
+                        // Actualizar el total individual (en tu backend lo recalculas, pero aquí también puedes actualizarlo)
+                        const precioUnitario = parseFloat(card.dataset.precioUnitario);
+                        const nuevoTotalItem = precioUnitario * nuevaCantidad;
+                    
+                        // Actualizar variables globales y resumen
+                        cantidadLibros += nuevaCantidad - parseInt(detalle.cantidad); // detalle.cantidad es del bucle original, no está actualizado
+                        total += nuevoTotalItem - (precioUnitario * parseInt(detalle.cantidad));
+                    
+                        // Actualizar resumen en la vista
+                        resumenTotal.textContent = `$${total.toFixed(2)}`;
+                        totalItems.textContent = `Items (${cantidadLibros})`;
                     });
+                    
                 };
 
-                const eliminarDetalle = () => {
-                    const idDetalle = card.dataset.idDetalle;
-                    fetch(`https://localhost:7070/api/DetallesOrdenes/${idDetalle}`, {
-                        method: "DELETE"
-                    })
-                    .then(res => {
-                        if (res.ok) location.reload();
-                        else alert("Error al eliminar libro del carrito");
-                    });
-                };
+               
 
                 // EVENTOS
                 btnMas.addEventListener("click", () => {
@@ -126,4 +145,93 @@ document.addEventListener("DOMContentLoaded", () => {
         .catch(err => {
             contenedorItems.innerHTML += `<p class="text-danger">Error al cargar el carrito: ${err}</p>`;
         });
+
+        const eliminarDetalle = () => {
+            const idDetalle = card.dataset.idDetalle;
+            fetch(`https://localhost:7070/api/DetallesOrdenes/${idDetalle}`, {
+                method: "DELETE"
+            })
+            .then(res => {
+                if (res.ok) location.reload();
+                else alert("Error al eliminar libro del carrito");
+            });
+        }; 
+
+        document.querySelector(".limp").addEventListener("click", () => {
+            const idUsuario = 1; // ID real del usuario
+            if (confirm("¿Seguro que deseas vaciar el carrito?")) {
+                limpiarCarrito(idUsuario);
+            }
+        });
+
+        function limpiarCarrito(idUsuario) {
+            fetch(`https://localhost:7070/api/DetallesOrdenes/LimpiarCarrito/${idUsuario}`, {
+                method: "DELETE"
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Error al limpiar el carrito");
+                return response.text();
+            })
+            .then(data => {
+                alert(data);
+                contenedorItems.innerHTML = `
+                <div class="d-flex justify-content-center">
+                    <p class="text-warning fw-semibold mt-4">Tu carrito está vacío.</p>
+                </div>
+            `;
+            resumenTotal.textContent = "$0.00";
+            totalItems.textContent = "Items (0)";
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Ocurrió un error al limpiar el carrito");
+            });
+        }
+
+        document.getElementById("btn-pagar").addEventListener("click", () => {
+            if (cantidadLibros === 0) {
+                alert("Tu carrito está vacío.");
+                return;
+            }
+        
+            const idUsuario = 1; // Aquí usas el ID real del usuario
+            const fechaActual = new Date().toISOString(); // formato ISO estándar
+        
+            const orden = {
+                idUsuario: idUsuario,
+                fechaCreacion: fechaActual,
+                descripcion: `#ORD${Math.floor(Math.random() * 1000000)}`,
+                cantidadTotal: cantidadLibros,
+                precioTotal: total
+            };
+            
+        
+            fetch("https://localhost:7070/api/Ordenes/CrearConDetalles/1", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(orden)
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
+                        throw new Error(err.message || "No se pudo crear la orden.");
+                    });
+                }
+                return res.json(); // Devuelve la orden creada
+            })
+            .then(data => {
+                alert("Orden creada con éxito.");
+                // Opcional: redirige a la página de órdenes o reinicia el carrito
+                window.location.href = "../ordenes/ordenes.html"; 
+            })
+            .catch(error => {
+                console.error("Error al crear la orden:", error);
+                alert("Ocurrió un error al procesar tu orden.");
+            });
+        });
+        
+        
 });
+

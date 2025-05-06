@@ -12,7 +12,7 @@ namespace BibliotecaApi.Models
         [Column("precio_total")] public float PrecioTotal { get; set; }
 
         // Navegación: una orden puede tener muchos detalles
-        [JsonIgnore]
+       
         public List<DetalleOrden> DetallesOrdenes { get; set; } = new();
     }
 }

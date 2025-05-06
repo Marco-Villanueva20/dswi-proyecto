@@ -38,24 +38,6 @@ namespace BibliotecaApi.Controllers
         }
 
 
-        // GET: api/usuarios/5/carrito
-        [HttpGet("{idUsuario}/carrito")]
-        public async Task<ActionResult<IEnumerable<DetalleOrden>>> GetCarritoUsuario(int idUsuario)
-        {
-            var carrito = await _context.DetallesOrdenes
-                .Where(det => det.IdUsuario == idUsuario && det.IdOrden == null)
-                .Include(det => det.Libro) // Incluye el libro
-                .Include(det => det.Usuario) // Incluye el usuario
-                .ToListAsync();
-
-            if (carrito == null || !carrito.Any())
-            {
-                return NotFound("El carrito está vacío.");
-            }
-
-            return carrito;
-        }
-
 
         [HttpGet("login/{username},{password}")]
         public async Task<ActionResult<Usuario>> GetUsuarioPorCredenciales(string username, string password)
