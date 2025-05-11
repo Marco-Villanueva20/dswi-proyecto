@@ -69,6 +69,8 @@ namespace BibliotecaApi.Controllers
         [HttpGet("CarritoUsuario/{idUsuario}")]
         public async Task<ActionResult<IEnumerable<object>>> GetCarritoUsuario(int idUsuario)
         {
+
+
             var detalles = await _context.DetallesOrdenes
                 .Where(d => d.IdUsuario == idUsuario && d.IdOrden == null)
                 .Include(d => d.Libro) // Incluimos el objeto relacionado Libro
@@ -76,8 +78,9 @@ namespace BibliotecaApi.Controllers
 
             if (detalles.Count == 0)
             {
-                return NotFound("No se encontraron elementos en el carrito.");
+                return NotFound(new { mensaje = "Vacio" });
             }
+
 
             var resultado = detalles.Select(d => new
             {

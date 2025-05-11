@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  localStorage.getItem("usuarioId");
   fetch("https://localhost:7070/api/Libros")
     .then(response => response.json())
     .then(data => {

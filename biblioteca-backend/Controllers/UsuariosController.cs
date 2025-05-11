@@ -37,6 +37,18 @@ namespace BibliotecaApi.Controllers
             return usuario;
         }
 
+        [HttpGet("por-clave/{password}")]
+        public async Task<ActionResult<Usuario>> GetUsuarioPorPassword(string password)
+        {
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Password == password);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            return usuario;
+        }
+
 
 
         [HttpGet("login/{username},{password}")]
@@ -66,7 +78,6 @@ namespace BibliotecaApi.Controllers
 
 
         // PUT: api/Usuarios/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
         {
@@ -97,7 +108,6 @@ namespace BibliotecaApi.Controllers
         }
 
         // POST: api/Usuarios
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
